@@ -4,6 +4,9 @@
 import { Navigation } from "react-native-navigation";
 import { screens } from "./src/screens/screens";
 import defaultOptions from "library/config/defaultOptions";
+import { Provider } from 'react-redux';
+import storeConfiguration from './src/redux/storeConfiguration';
+const store = storeConfiguration();
 
 /**
  * This function will iterate thru the screens 
@@ -11,8 +14,8 @@ import defaultOptions from "library/config/defaultOptions";
  */
 registerComponents = () => {
   screens.map(screen => {
-    // Register the components to React Native Navigation
-    Navigation.registerComponent(screen.name, () => screen.view);
+    // Register the components with redux to React Native Navigation
+    Navigation.registerComponentWithRedux(screen.name, () => screen.view, Provider, store);
   });
 }
 
