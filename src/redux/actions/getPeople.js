@@ -1,61 +1,65 @@
-import { AsyncStorage } from 'react-native';
+import { getStoredItem, setStorageItem } from "library/utils/asyncStorageManager";
 import { GET_PEOPLE } from './types';
-const PEOPLE = "PEOPLE"
+import { BASE_URL, PERSON_END_POINT, API_KEY, RANDOM_IMAGE_URL, AS_PEOPLE, AS_DETAILS } from "library/config/config";
+
+/**
+ * We placed the api request here, so we can dispatch the results and update the props
+ * @param {*} page 
+ * @param {*} limit 
+ */
 export const getPeople = (page, limit) => {
   return dispatch => {
-    fetch("https://testtask-10d9c6.pipedrive.com/v1/persons?start="+page+"&limit="+limit+"&api_token=0b72f188500da77ba56b50bb8557c1dc7cbc8db6")
+    fetch(BASE_URL + PERSON_END_POINT + "?start=" + page + "&limit=" + limit + "&api_token=" + API_KEY)
     .then(result => result.json())
     .then(parsedResults => {
-        console.log(parsedResults)
-        /**
-         * We'll recreate a new object, I don't think i'll be
-         * needing the other fields.
-         */
-        var people = []
-        parsedResults.data.map((person) => {
-          var newPerson = {}
-          newPerson.id = person.id;
-          // This will generate random photos
-          newPerson.image = "https://randomuser.me/api/portraits/lego/" + (Math.floor(Math.random() * 6) + 1) + ".jpg"
-          newPerson.company_id = person.company_id;
-          newPerson.name = person.name;
-          newPerson.first_name = person.first_name;
-          newPerson.last_name = person.last_name;
-          newPerson.add_time = person.add_time;
-          newPerson.first_char = person.first_char;
-          newPerson.address = person.org_id.address;
-          newPerson.company_name = person.org_id.name;
-          newPerson.last_updated = person.update_time;
-          person.phone.map((phone) => {
-            if(phone.primary) {
-              newPerson.phone = phone.value;
-            }
-          })
-          person.email.map((email) => {
-            if(email.primary) {
-              newPerson.email = email.value;
-            }
-          })
-          people.push(newPerson);
+      /**
+       * We'll recreate a new object, I don't think i'll be
+       * needing the other fields.
+       */
+      var people = []
+      parsedResults.data.map((person) => {
+        var newPerson = {}
+        newPerson.id = person.id;
+        // This will generate random photos
+        newPerson.image = RANDOM_IMAGE_URL + (Math.floor(Math.random() * 6) + 1) + ".jpg"
+        newPerson.company_id = person.company_id;
+        newPerson.name = person.name;
+        newPerson.first_name = person.first_name;
+        newPerson.last_name = person.last_name;
+        newPerson.add_time = person.add_time;
+        newPerson.first_char = person.first_char;
+        newPerson.address = person.org_id.address;
+        newPerson.company_name = person.org_id.name;
+        newPerson.last_updated = person.update_time;
+        person.phone.map((phone) => {
+          if(phone.primary) {
+            newPerson.phone = phone.value;
+          }
         })
+        person.email.map((email) => {
+          if(email.primary) {
+            newPerson.email = email.value;
+          }
+        })
+        people.push(newPerson);
+      })
 
-        /**
-         * Constructing the people array, we'll feed it to
-         * our asyncStorage for saving
-         */
-        updateStorage(people);
+      /**
+       * Constructing the people array, we'll feed it to
+       * our asyncStorage for saving
+       */
+      updateStorage(people);
 
-        //console.log(people)
-        dispatch({
-            type: GET_PEOPLE,
-            people: people,
-            next_page_available: parsedResults.additional_data.pagination.more_items_in_collection,
-            next_page_start: parsedResults.additional_data.pagination.next_start
-        })    
+      dispatch({
+        type: GET_PEOPLE,
+        people: people,
+        next_page_available: parsedResults.additional_data.pagination.more_items_in_collection,
+        next_page_start: parsedResults.additional_data.pagination.next_start
+      })
     })
     .catch(error => {
-      console.log("NO MORE RECORD")
-      console.log(error)
+      // If network failure occured we'll fall back to local storage
+      dispatch(getLocalStorage(page, limit));
     })
   }
 }
@@ -72,29 +76,118 @@ export const getPeople = (page, limit) => {
  */
 const updateStorage = (people) => {
   if(people.length > 0) {
-    return AsyncStorage.getItem(PEOPLE)
-    .then(request => {
-      console.log("++++++++++++")
-      /**
-       * If we're unsuccessful in getting any record
-       * We'll define a new storage value 
-       * */ 
-      if (request) {
-        JSON.parse(request)
-      } else {
-        // Let's create the storage
-      }
-      console.log(request);
-      console.log("TEST");
+    getStoredItem(AS_PEOPLE)
+    .then(results => {
+      people.map(person => {
+        // Let's check if the person ID is not already stored
+        if (!results.find(stored => stored.id === person.id)) {
+          results.push(person);
+        }
+      })
+      // Let's store the items
+      return setStorageItem(AS_PEOPLE, JSON.stringify(results));
     })
-    .then(json => {
-      console.log("-----------");
-      console.log(json)
-      console.log("TEST 1");
+    .then(status => {
+      console.log("saving status:" + status);
     })
-    .catch(error => console.log('error!'))
+    .catch(error => {
+      console.log(error);
+    })
   }
 }
+/**
+ * If network requests fail, we'll fall back to local storage
+ * To paginate we add the current page value and add the set limit
+ * We can slice thru the stored array value paginate based on the array indeces
+ * @param {*} page 
+ * @param {*} limit 
+ */
+const getLocalStorage = (page, limit) => {
+  var nextPage = page + limit
+  return dispatch => {
+    getStoredItem(AS_PEOPLE)
+    .then(results => {
+      var nextStatus = (results.length >= nextPage) ? true : false
+      dispatch({
+        type: GET_PEOPLE,
+        people: nextStatus ? results.slice(page, nextPage) : [],
+        next_page_available: nextStatus,
+        next_page_start: nextPage
+      });
+    })
+    .catch(error => {
+      console.log(error);
+    })  
+  }
+}
+
+
+
+  //   return AsyncStorage.getItem(PEOPLE)
+  //   .then(request => {
+  //     console.log("++++++++++++")
+  //     /**
+  //      * If we're unsuccessful in getting any record
+  //      * We'll define a new storage value 
+  //      * */ 
+  //     if (request) {
+  //       // Parse the value
+  //       console.log("AM HERE 1")
+
+  //       JSON.parse(request)
+  //     } else {
+  //       // Let's create the storage
+  //       console.log("AM HERE")
+  //       const setStorage = setInitialStorage(people);
+  //       setStorage.then(value => {
+  //         console.log("]]]]]]]]]]]]")
+  //         console.log(value)
+  //         console.log("]]]]]]]]]]]]")
+
+  //       })
+  //       console.log(store)
+
+  //       console.log("AM HERE")
+
+  //     }
+  //     console.log(request);
+  //     console.log("TEST");
+  //   })
+  //   .then(json => {
+  //     console.log("-----------");
+  //     console.log(json)
+  //     console.log("TEST 1");
+
+  //   })
+  //   .catch(error => console.log('error!'))
+  // }
+// async _getStorageValue(){
+//   var value = await AsyncStorage.getItem('ITEM_NAME')
+//   return value
+// }
+
+// const setInitialStorage = (people) => {
+//   return new Promise((resolve, reject) => {
+//     AsyncStorage.setItem(PEOPLE, JSON.stringify(people))
+//     .then(result => resolve(true))
+//     .catch(error => reject(error))
+//   });
+
+//   // try {
+//   //   const hh = await AsyncStorage.setItem("TEST", JSON.stringify({test:"test"}))
+//   //   return true;
+//   // } catch (error) {
+//   //   console.log(error.message);
+//   // }
+//   // return
+//   // return AsyncStorage.setItem("TEST", JSON.stringify({test:"test"}))
+//   // .then(json => {
+    
+//   // })
+//   // .catch(error => {
+//   //   console.log('Failed to set storage!')
+//   // });
+// }
 // parsedResults.data.map
 // const people = []
 // parsedResults.data.map((person) => {

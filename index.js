@@ -6,6 +6,9 @@ import { screens } from "./src/screens/screens";
 import defaultOptions from "library/config/defaultOptions";
 import { Provider } from 'react-redux';
 import storeConfiguration from './src/redux/storeConfiguration';
+import { AS_PEOPLE, AS_DETAILS } from "library/config/config";
+import { initializeStorageItems } from "library/utils/asyncStorageManager";
+
 const store = storeConfiguration();
 
 /**
@@ -22,6 +25,15 @@ registerComponents = () => {
 launchApp = () => {
   // Register the views/components
   registerComponents();
+
+  /** 
+   * Let's setup AsyncStorage items
+   * We'll initialize 2 items
+   * - List of persons
+   * - Person's details like activity and deals
+  */
+ initializeStorageItems(AS_PEOPLE, JSON.stringify([]))
+ initializeStorageItems(AS_DETAILS, JSON.stringify([]))
 
   Navigation.events().registerAppLaunchedListener(() => {
     /**
