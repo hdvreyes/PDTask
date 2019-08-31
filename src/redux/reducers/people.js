@@ -2,7 +2,9 @@ import { GET_PEOPLE, GET_DETAILS } from '../actions/types';
 
 const initialState = {
     people: [],
-    details: []
+    details: [],
+    next_page_available: false,
+    next_page_start: 0
 }
 
 export default (state = initialState, action) => {
@@ -10,7 +12,9 @@ export default (state = initialState, action) => {
         case GET_PEOPLE:
             return {
                 ...state,
-                people: action.people
+                people: action.people,
+                next_page_available: action.next_page_available,
+                next_page_start: action.next_page_start
             }
         case GET_DETAILS:
             return {
