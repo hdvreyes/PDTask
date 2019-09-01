@@ -16,32 +16,13 @@ export const getPeople = (page, limit) => {
        * We'll recreate a new object, I don't think i'll be
        * needing the other fields.
        */
-      var people = []
+      let people = []
       parsedResults.data.map((person) => {
-        var newPerson = {}
-        newPerson.id = person.id;
-        // This will generate random photos
-        newPerson.image = RANDOM_IMAGE_URL + (Math.floor(Math.random() * 6) + 1) + ".jpg"
-        newPerson.company_id = person.company_id;
-        newPerson.name = person.name;
-        newPerson.first_name = person.first_name;
-        newPerson.last_name = person.last_name;
-        newPerson.add_time = person.add_time;
-        newPerson.first_char = person.first_char;
-        newPerson.address = person.org_id.address;
-        newPerson.company_name = person.org_id.name;
-        newPerson.last_updated = person.update_time;
-        person.phone.map((phone) => {
-          if(phone.primary) {
-            newPerson.phone = phone.value;
-          }
-        })
-        person.email.map((email) => {
-          if(email.primary) {
-            newPerson.email = email.value;
-          }
-        })
-        people.push(newPerson);
+        /**
+         * Let's go thru the fields and use only what we need to save
+         */
+        let newPersonFields = setNewPerson(person);
+        people.push(newPersonFields);
       })
 
       /**
@@ -79,6 +60,7 @@ const updateStorage = (people) => {
     getStoredItem(AS_PEOPLE)
     .then(results => {
       people.map(person => {
+        let newResults = [];
         // Let's check if the person ID is not already stored
         if (!results.find(stored => stored.id === person.id)) {
           results.push(person);
@@ -103,11 +85,11 @@ const updateStorage = (people) => {
  * @param {*} limit 
  */
 const getLocalStorage = (page, limit) => {
-  var nextPage = page + limit
+  let nextPage = page + limit
   return dispatch => {
     getStoredItem(AS_PEOPLE)
     .then(results => {
-      var nextStatus = (results.length >= nextPage) ? true : false
+      let nextStatus = (results.length >= nextPage) ? true : false
       dispatch({
         type: GET_PEOPLE,
         people: nextStatus ? results.slice(page, nextPage) : [],
@@ -121,6 +103,36 @@ const getLocalStorage = (page, limit) => {
   }
 }
 
+/**
+ * We'll establish a new person based on the json response from API
+ * @param {*} person 
+ */
+const setNewPerson = (person) => {
+  var newPerson = {}
+  newPerson.id = person.id;
+  // This will generate random photos
+  newPerson.image = RANDOM_IMAGE_URL + (Math.floor(Math.random() * 6) + 1) + ".jpg"
+  newPerson.company_id = person.company_id;
+  newPerson.name = person.name;
+  newPerson.first_name = person.first_name;
+  newPerson.last_name = person.last_name;
+  newPerson.add_time = person.add_time;
+  newPerson.first_char = person.first_char;
+  newPerson.address = person.org_id.address;
+  newPerson.company_name = person.org_id.name;
+  newPerson.last_updated = person.update_time;
+  person.phone.map((phone) => {
+    if(phone.primary) {
+      newPerson.phone = phone.value;
+    }
+  })
+  person.email.map((email) => {
+    if(email.primary) {
+      newPerson.email = email.value;
+    }
+  }) 
+  return newPerson;
+}
 
 
   //   return AsyncStorage.getItem(PEOPLE)

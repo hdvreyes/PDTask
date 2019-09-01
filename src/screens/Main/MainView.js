@@ -58,10 +58,17 @@ class MainView extends Component {
   }
 
 
-  onPressPerson = (id) => {
+  onPressPerson = (person) => {
+    /** revert people state to [] */
+    this.setState(prev => {
+      return {
+        ...prev,
+        people: []
+      }
+    });
     Navigation.push(this.props.componentId, {
       component: {
-          name: "com.screen.LoginView",
+          name: "com.screen.DetailView",
           options: {
               topBar: {
                   animate: false,
@@ -69,12 +76,17 @@ class MainView extends Component {
                   borderHeight: 0,
                   elevation: 0, // TopBar elevation in dp                        
                   title: {
-                      text: "User"
+                      text: person.name
                   }
-              },                    
-          }
+              },
+          },
+          passProps: {
+            selectedPerson: {
+              ...person
+            }
+          }    
       }
-    });    
+    });
     // let employee = this.props.employees.filter(employee => employee.id === id)
     // this.setState(prev => {
     //     return {
@@ -109,7 +121,10 @@ class MainView extends Component {
               data={this.state.people}
               keyExtractor={ item => item.id.toString() }
               renderItem={ ({item}) => 
-                <PersonCell {...item} key={ item.id.toString() } onPress={ () => this.onPressPerson(item.id) } /> 
+                <PersonCell 
+                {...item} key={ item.id } 
+                onPress={ () => this.onPressPerson(item) } 
+                /> 
               }
               onEndReached={() => {
                 if(this.state.nextPageAvailable) {
@@ -172,7 +187,6 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  
   return {
     details: state.people.details,
     people: state.people.people,
