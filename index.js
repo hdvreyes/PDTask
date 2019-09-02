@@ -50,6 +50,17 @@ launchApp = () => {
           children:[{
             component: {
               name: "com.screen.MainView", // SEE: "./src/screens/screens" for the list of defined screens
+              options: {
+                topBar: {
+                  animate: false,
+                  drawBehind: false,
+                  borderHeight: 0,
+                  elevation: 0, // TopBar elevation in dp                        
+                  title: {
+                    text: "Task"
+                  }
+                },
+              }  
             }
           }]
         }      
