@@ -40,6 +40,7 @@ export const getPeople = (page, limit) => {
     })
     .catch(error => {
       // If network failure occured we'll fall back to local storage
+      console.log(error.message);
       dispatch(getLocalStorage(page, limit));
     })
   }
@@ -89,6 +90,10 @@ const getLocalStorage = (page, limit) => {
   return dispatch => {
     getStoredItem(AS_PEOPLE)
     .then(results => {
+      console.log("LOCAL")
+      console.log(results)
+      console.log("LOCAL")
+
       let nextStatus = (results.length >= nextPage) ? true : false
       dispatch({
         type: GET_PEOPLE,
@@ -108,27 +113,28 @@ const getLocalStorage = (page, limit) => {
  * @param {*} person 
  */
 const setNewPerson = (person) => {
-  var newPerson = {}
-  newPerson.id = person.id;
-  // This will generate random photos
-  newPerson.image = RANDOM_IMAGE_URL + (Math.floor(Math.random() * 6) + 1) + ".jpg"
-  newPerson.company_id = person.company_id;
-  newPerson.name = person.name;
-  newPerson.first_name = person.first_name;
-  newPerson.last_name = person.last_name;
-  newPerson.add_time = person.add_time;
-  newPerson.first_char = person.first_char;
-  newPerson.address = person.org_id.address;
-  newPerson.company_name = person.org_id.name;
-  newPerson.last_updated = person.update_time;
+  var newPerson = {
+    id: person.id,
+    // This will generate random photos
+    image: RANDOM_IMAGE_URL + (Math.floor(Math.random() * 6) + 1) + ".jpg",
+    company_id: person.company_id,
+    name: person.name,
+    first_name: person.first_name,
+    last_name: person.last_name,
+    add_time: person.add_time,
+    first_char: person.first_char,
+    address: person.org_id.address,
+    company_name: person.org_id.name,
+    last_updated: person.update_time
+  }
   person.phone.map((phone) => {
     if(phone.primary) {
-      newPerson.phone = phone.value;
+      newPerson.phone = phone.value
     }
   })
   person.email.map((email) => {
     if(email.primary) {
-      newPerson.email = email.value;
+      newPerson.email = email.value
     }
   }) 
   return newPerson;

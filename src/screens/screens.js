@@ -1,5 +1,4 @@
 import MainView from "./Main/MainView";
-import LoginView from "./Login/LoginView";
 import DetailView from "./Detail/DetailView";
 
 /**
@@ -17,11 +16,6 @@ export const screens = [
     title: "Main",
     name: "com.screen.MainView",
     view: MainView
-  },
-  {
-    title: "Login",
-    name: "com.screen.LoginView",
-    view: LoginView
   },
   {
     title: "Details",

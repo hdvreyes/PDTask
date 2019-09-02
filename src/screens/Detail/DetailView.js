@@ -14,14 +14,14 @@ import {
   StatusBar,
   Dimensions,
   Image,
-  Platform,
-  Linking,
-  Button
+  Button,
+  NativeModules,
+  TouchableOpacity,
+  Platform
 } from "react-native";
 
 import { connect } from "react-redux";
 import { getDetails } from "../../redux/actions/getDetails";
-import { startLoading, stopLoading } from "../../redux/actions/activityIndicator";
 
 import R from "res/R";
 const { width } = Dimensions.get('window');
@@ -53,21 +53,16 @@ class DetailView extends Component {
   }
 
   componentWillUnmount() {
-
   }
   
+  /** 
+   * Using NativeModule, let's expose a method in our native platform (ios)
+   * to place a call by triggering link to dialer
+   **/
   placeCall = (phone) => {
-    console.log(phone);
-    let phoneNumber;
-    Linking.canOpenURL(`tel:${phone}`)
-    .then(status => {
-      if (status) {
-        return Linking.openURL(phoneNumber);
-      } else {
-        alert("Unable to make call")
-      }
-    })
-    .catch(err => console.log(err));
+    if (Platform.OS === "ios") {
+      NativeModules.CallBridge.makeCall("123");
+    }
   }
 
   renderDeals = (deals) => {
@@ -87,6 +82,12 @@ class DetailView extends Component {
           </View>
         )
       });  
+    } else {
+      dealView.push(
+        <View style={{flexDirection: "row", flex: 1}}>
+          <Text style={styles.sectionDescription}>This person has no deals yet</Text>
+        </View>
+      );
     }
     return dealView;
   }
@@ -108,6 +109,12 @@ class DetailView extends Component {
           </View>
         )
       });  
+    } else {
+      activityView.push(
+        <View style={{flexDirection: "row", flex: 1}}>
+          <Text style={styles.sectionDescription}>This person has no activity yet</Text>
+        </View>
+      );
     }
     return activityView;
   }
@@ -132,18 +139,17 @@ class DetailView extends Component {
                 <Text style={styles.sectionTitle}>Contact Details</Text>
               </View>
               <View style={styles.sectionContainer}>
-                <View><Text style={styles.sectionDescription}>Email: {this.state.person.email}</Text></View>
-                <View style={{flexDirection: "row" }}><Text style={styles.sectionDescription}>Phone: {this.state.person.phone}</Text>
-                <Button
+                <View><Text style={styles.sectionDescription}>{this.state.person.email}</Text></View>
+                <View style={{flexDirection: "row" }}><Text style={styles.sectionDescription}>{this.state.person.phone}</Text>
+                  <TouchableOpacity
+                  style={styles.callButton}
                   onPress={() => this.placeCall(this.state.person.phone)}
-                  title="Dial"
-                  color="#841584"
-                  backgroundColor="#000000"
-                  accessibilityLabel="Learn more about this purple button"
-                />
+                  underlayColor='#fff'>
+                    <Text style={styles.callText}>Call</Text>
+                  </TouchableOpacity>                
                 </View>
-                <View><Text style={styles.sectionDescription}>Company: {this.state.person.company_name}</Text></View>
-                <View><Text style={styles.sectionDescription}>Address: {this.state.person.address}</Text></View>
+                <View><Text style={styles.sectionDescription}>{this.state.person.company_name}</Text></View>
+                <View><Text style={styles.sectionDescription}>{this.state.person.address}</Text></View>
               </View>
               <View style={styles.sectionContainer, [{marginTop: 10, marginLeft: 10}]}>
                 <Text style={styles.sectionTitle}>Deals</Text>
@@ -162,6 +168,20 @@ class DetailView extends Component {
         </SafeAreaView>
       </View>
     );
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    details: state.details.details,
+    page_available: state.details.details.next_page_available,
+    page_start: state.details.details.next_page_start
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onFetchDetails: (person, page, limit) => dispatch(getDetails(person, page, limit))
   }
 }
 
@@ -224,24 +244,23 @@ const styles = StyleSheet.create({
     borderRadius: ((width / 10) * 2.0) / 2,
     borderColor: R.colors.white,
     borderWidth: 1,
+  },
+  callButton:{
+    backgroundColor: "#1E6738",
+    borderRadius: 5,
+    borderWidth: 1,
+    height: 30,
+    marginLeft: 10,
+    borderColor: "#ffffff"
+  },
+  callText:{
+      color: "#fff",
+      paddingTop: 5,
+      paddingLeft: 15,
+      paddingRight: 15,
+      paddingBottom: 5,
+      textAlign: "center",
   }  
-
 });
-
-const mapStateToProps = (state) => {
-  return {
-    details: state.people.details,
-    page_available: state.people.details.next_page_available,
-    page_start: state.people.details.next_page_start
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onFetchDetails: (person, page, limit) => dispatch(getDetails(person, page, limit)),
-    onActivityStart: () => dispatch(startLoading()),
-    onActivityStop: () => dispatch(stopLoading())
-  }
-}
 
 export default connect(mapStateToProps, mapDispatchToProps)(DetailView);

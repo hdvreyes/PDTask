@@ -1,17 +1,17 @@
-import { GET_PEOPLE } from '../actions/types';
+import { GET_DETAILS } from '../actions/types';
 
 const initialState = {
-  people: [],
+  details: {},
   next_page_available: false,
   next_page_start: 0
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case GET_PEOPLE:
+    case GET_DETAILS:
       return {
         ...state,
-        people: action.people,
+        details: action.details,
         next_page_available: action.next_page_available,
         next_page_start: action.next_page_start
       }
