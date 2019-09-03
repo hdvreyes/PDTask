@@ -18,7 +18,8 @@ export const defaultOptions = {
       color: R.colors.primary
     },
     title: {
-      color: R.colors.white,
+      text: "Task",
+      color: "#000000",
       fontSize: 15,
       component: {
         padding: 10

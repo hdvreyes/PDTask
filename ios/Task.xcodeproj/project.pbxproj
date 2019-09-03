@@ -24,6 +24,8 @@
 		404169FEFB6A40048939495C /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A34097B3A4404D17BBBD3E79 /* FontAwesome5_Solid.ttf */; };
 		496E022DE6BE468C9C846349 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EA5A0E089D744899894A761B /* MaterialCommunityIcons.ttf */; };
 		5B5003AE2318140400138048 /* libReactNativeNavigation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5003AD2318140400138048 /* libReactNativeNavigation.a */; };
+		5B8A59D9231CBAFA00D97998 /* CallBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8A59D8231CBAFA00D97998 /* CallBridge.swift */; };
+		5B8A59DD231CBC2300D97998 /* CallBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B8A59DC231CBC2300D97998 /* CallBridge.m */; };
 		7E15C53A81E2430D918ED9E3 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 817EB7F530514319AB399014 /* Feather.ttf */; };
 		7F06EFD9363243CA8B135C71 /* rubicon-icon-font.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3710518622DA437789DE2C96 /* rubicon-icon-font.ttf */; };
 		95CAAC1F96CD412C961986CC /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0A153C84922F4BA3881C2BEE /* Ionicons.ttf */; };
@@ -96,6 +98,9 @@
 		4F9E98F0C767A3B8584B5E0A /* Pods-Task.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Task.debug.xcconfig"; path = "Target Support Files/Pods-Task/Pods-Task.debug.xcconfig"; sourceTree = "<group>"; };
 		5B5003A3231811E400138048 /* ReactNativeNavigation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeNavigation.xcodeproj; path = "../node_modules/react-native-navigation/lib/ios/ReactNativeNavigation.xcodeproj"; sourceTree = "<group>"; };
 		5B5003AD2318140400138048 /* libReactNativeNavigation.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReactNativeNavigation.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B8A59D7231CBAFA00D97998 /* Task-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Task-Bridging-Header.h"; sourceTree = "<group>"; };
+		5B8A59D8231CBAFA00D97998 /* CallBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallBridge.swift; sourceTree = "<group>"; };
+		5B8A59DC231CBC2300D97998 /* CallBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CallBridge.m; sourceTree = "<group>"; };
 		5FFA572E3E164A9BA75D683D /* Roboto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto.ttf; path = "../node_modules/native-base/Fonts/Roboto.ttf"; sourceTree = "<group>"; };
 		6372908EAEB91180A885EB97 /* libPods-Task.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Task.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		68EC87C908369E38C6A2CFC7 /* libPods-Task-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Task-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,6 +191,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				5B8A59D8231CBAFA00D97998 /* CallBridge.swift */,
+				5B8A59D7231CBAFA00D97998 /* Task-Bridging-Header.h */,
+				5B8A59DC231CBC2300D97998 /* CallBridge.m */,
 			);
 			name = Task;
 			sourceTree = "<group>";
@@ -381,6 +389,9 @@
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
+					13B07F861A680F5B00A75B9A = {
+						LastSwiftMigration = 1020;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -660,8 +671,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B8A59DD231CBC2300D97998 /* CallBridge.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				5B8A59D9231CBAFA00D97998 /* CallBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -714,6 +727,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CF1144465D425C494830E5CD /* Pods-TaskTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -737,6 +751,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F6CA26358D88FE1317F11785 /* Pods-TaskTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = TaskTests/Info.plist;
@@ -758,6 +773,7 @@
 			baseConfigurationReference = 4F9E98F0C767A3B8584B5E0A /* Pods-Task.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				HEADER_SEARCH_PATHS = (
@@ -794,6 +810,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Task;
+				SWIFT_OBJC_BRIDGING_HEADER = "Task-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -803,6 +822,7 @@
 			baseConfigurationReference = 9D0D2FC919480EA9348763F2 /* Pods-Task.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -838,6 +858,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Task;
+				SWIFT_OBJC_BRIDGING_HEADER = "Task-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

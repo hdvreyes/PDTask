@@ -8,83 +8,118 @@ import React, { Component } from "react";
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
-  Text,
-  StatusBar
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
+  Text
 } from "react-native";
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions
-} from "react-native/Libraries/NewAppScreen";
-
+import { connect } from "react-redux";
+import { getPeople } from "../../redux/actions/getPeople";
+import PersonCell from "library/components/PersonCell";
+import { Navigation } from "react-native-navigation";
 import R from "res/R";
 
 class MainView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true
+      loading: true,
+      limit: 20,
+      page: 0,
+      nextPageAvailable: false,
+      people: []
     }
   }
 
   componentDidMount() {
-
+   this.props.onFetchPeople(this.state.page, this.state.limit)
   }
 
   componentWillUnmount() {
 
   }
 
+  static getDerivedStateFromProps(props, state) {
+    props.people.map((person) => {
+      state.people.push(person)
+    })
+    state.nextPageAvailable = props.page_available
+    if (props.page_available) {
+      state.page = props.page_start
+    }
+    if(state.people.length > 0) {
+      state.loading = false
+    }
+    return state;
+  }
+
+
+  onPressPerson = (person) => {
+    this.props.person = [];
+    Navigation.push(this.props.componentId, {
+      component: {
+        name: "com.screen.DetailView",
+        options: {
+          topBar: {
+            animate: false,
+            drawBehind: false,
+            borderHeight: 0,
+            elevation: 0, // TopBar elevation in dp                        
+            title: {
+              text: person.name
+            }
+          },
+        },
+        passProps: {
+          selectedPerson: {
+            ...person
+          }
+        }    
+      }
+    });
+  }
+
+  renderIndicator = () => {
+    if (this.state.loading) {
+      return <View style={styles.loading}>
+              <ActivityIndicator size="large" color="#666666" />
+             </View>
+    }
+  }
   render() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.scrollView}
-          >
-            <Header />
-            {global.HermesInternal == null ? null : (
-              <View style={styles.engine}>
-                <Text style={styles.footer}>Engine: Hermes</Text>
-              </View>
-            )}
-            <View style={styles.body}>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Step One</Text>
-                <Text style={styles.sectionDescription}>
-                  Edit <Text style={styles.highlight}>App.js</Text> to change this
-                  screen and then come back to see your edits.
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>See Your Changes</Text>
-                <Text style={styles.sectionDescription}>
-                  <ReloadInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Debug</Text>
-                <Text style={styles.sectionDescription}>
-                  <DebugInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Learn More</Text>
-                <Text style={styles.sectionDescription}>
-                  Read the docs to discover what to do next:
-                </Text>
-              </View>
-              <LearnMoreLinks />
-            </View>
-          </ScrollView>
+          <FlatList 
+              style={[styles.listContainer]}
+              data={this.state.people}
+              keyExtractor={ item => item.id.toString() }
+              renderItem={ ({item}) => 
+                <PersonCell 
+                {...item} key={ item.id } 
+                onPress={ () => this.onPressPerson(item) } 
+                /> 
+              }
+              onEndReached={() => {
+                if(this.state.nextPageAvailable) {
+                  this.props.onFetchPeople(this.state.page, this.state.limit)
+                }
+              }}
+              onEndReachedThreshold={0.1}
+              ListHeaderComponent={() => (!this.state.people.length? 
+                <View style={styles.emptyPersonsContainer}>
+                  <Text style={styles.emptyPersonsText}>No available persons!</Text>
+                </View>
+                : null)
+              }     
+              />
         </SafeAreaView>
+        {
+          this.renderIndicator()
+        }
       </View>
     );
   }
@@ -93,44 +128,59 @@ class MainView extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: R.colors.white,
+  },
+  listContainer: {
+    width: "100%"
   },
   scrollView: {
-    backgroundColor: "#ffffff"
+    backgroundColor: R.colors.white
   },
-  engine: {
+  activityContainer: {
+    flex: 1,
+    justifyContent: "center"
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10
+  },
+  loading: {
     position: "absolute",
-    right: 0
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center"
   },
-  body: {
-    backgroundColor: "#ffffff"
+  emptyPersonsContainer: {
+    flex: 1,
+    height: 100,
+    justifyContent: "center",
+    flexDirection: "row",
+
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: R.colors.title
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: "400",
-    color: R.colors.title
-  },
-  highlight: {
-    fontWeight: "700"
-  },
-  footer: {
-    color: R.colors.title,
-    fontSize: 12,
-    fontWeight: "600",
-    padding: 4,
-    paddingRight: 12,
-    textAlign: "right"
+  emptyPersonsText: {
+    marginTop: 20,
+    flex: 1,
+    justifyContent: "center",
+    textAlign: "center"
   }
 });
 
-export default MainView;
+const mapStateToProps = (state) => {
+  return {
+    people: state.people.people,
+    page_available: state.people.next_page_available,
+    page_start: state.people.next_page_start
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onFetchPeople: (page, limit) => dispatch(getPeople(page, limit))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainView);
