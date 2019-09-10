@@ -6,6 +6,8 @@ Master detail for PipeDrive's contact, deals and activities API.
 
 To get started please clone or download this repo and run npm install for dependencies.
 
+##### NOTE: The Pipedrive free trial account is about to expire. The token and API might be rendered unusable.
+
 ![](details.gif)
 ![](person_list.gif)
 
